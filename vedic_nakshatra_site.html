@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vedic Nakshatras — 1500 BCE Astronomy</title>
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--muted:#9aa6b2;--accent:#eab308}
+    body{font-family:Inter,system-ui,Arial; margin:0; background:linear-gradient(180deg,#071126 0%, #071428 100%); color:#e6eef6}
+    header{padding:2rem; text-align:center}
+    .container{max-width:1000px;margin:0 auto;padding:1rem}
+    .card{background:rgba(255,255,255,0.03); padding:1rem;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6);}
+    h1{font-size:2rem;margin:0;color:var(--accent)}
+    p.lead{color:var(--muted);margin-top:.5rem}
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:1rem;margin-top:1rem}
+    .wheel{height:340px;border-radius:12px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.05)); display:flex;align-items:center;justify-content:center}
+    .list{max-height:420px;overflow:auto;padding:0;margin:0}
+    .nak{display:flex;justify-content:space-between;padding:.6rem .8rem;border-bottom:1px dashed rgba(255,255,255,0.03);cursor:pointer}
+    .nak:hover{background:rgba(255,255,255,0.02)}
+    .meta{color:var(--muted);font-size:.9rem}
+    footer{color:var(--muted);font-size:.85rem;text-align:center;padding:1rem;margin-top:1rem}
+    .resources a{color:#9ed0ff}
+    @media(max-width:880px){.grid{grid-template-columns:1fr;}.wheel{order:2}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Vedic Nakshatras — 1500 BCE Astronomy</h1>
+      <p class="lead">A compact, educational single-page site presenting the 27 lunar mansions (nakshatras) used in ancient Vedic astronomy.</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="grid">
+      <section class="card">
+        <h2>Historical summary</h2>
+        <p class="meta">Key points:</p>
+        <ul>
+          <li>27 nakshatras of 13°20' each.</li>
+          <li>Early mentions in Rigveda (~1500 BCE).</li>
+          <li>Vedanga Jyotisha gives technical system.</li>
+        </ul>
+
+        <h3 style="margin-top:.8rem">Interactive list</h3>
+        <div id="list" class="list" role="list"></div>
+      </section>
+
+      <aside class="card">
+        <div class="wheel">
+          <svg id="wheelSvg" viewBox="0 0 400 400" width="320" height="320">
+            <defs>
+              <linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#071126"/><stop offset="1" stop-color="#062032"/></linearGradient>
+            </defs>
+            <circle cx="200" cy="200" r="180" fill="url(#g)" stroke="#0b2340" stroke-width="4" />
+            <g id="slices"></g>
+            <circle cx="200" cy="200" r="60" fill="#061121" />
+            <text x="200" y="205" text-anchor="middle" font-size="14" fill="#e6eef6">Nakshatras</text>
+          </svg>
+        </div>
+
+        <div style="margin-top:.8rem">
+          <h3>Resources</h3>
+          <p class="meta resources">Reputable sources:</p>
+          <ul>
+            <li><a href="https://www.britannica.com/topic/nakshatra" target="_blank">Britannica — Nakshatra</a></li>
+            <li><a href="https://en.wikipedia.org/wiki/List_of_Nakshatras" target="_blank">Wikipedia — List of Nakshatras</a></li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <section class="container card" style="margin-top:2rem;">
+    <h2>Detailed Nakshatra Profiles</h2>
+    <p class="meta">Deity, padas, meaning, star group.</p>
+    <div id="profiles"></div>
+  </section>
+
+  <section class="container card" style="margin-top:2rem;">
+    <h2>Moon Nakshatra Calculator</h2>
+    <p class="meta">Approximate calculation.</p>
+    <input type="date" id="dateInput" />
+    <button onclick="calcNakshatra()">Calculate</button>
+    <p id="result" style="margin-top:1rem;"></p>
+  </section>
+
+  <footer>
+    <div class="container">
+      <small>Static educational site.</small>
+    </div>
+  </footer>
+
+  <script>
+    const nakshatras = [
+      {id:1,name:'Ashvini', stars:'β, γ Arietis'},
+      {id:2,name:'Bharani', stars:'35,39 Arietis'},
+      {id:3,name:'Krittika', stars:'Pleiades'},
+      {id:4,name:'Rohini', stars:'Aldebaran'},
+      {id:5,name:'Mrigashirsha', stars:'Orion head'},
+      {id:6,name:'Ardra', stars:'Betelgeuse'},
+      {id:7,name:'Punarvasu', stars:'Castor/Pollux'},
+      {id:8,name:'Pushya', stars:'γ Cancri'},
+      {id:9,name:'Ashlesha', stars:'Hydra region'},
+      {id:10,name:'Magha', stars:'Regulus'},
+      {id:11,name:'Purva Phalguni', stars:'Leo'},
+      {id:12,name:'Uttara Phalguni', stars:'Denebola'},
+      {id:13,name:'Hasta', stars:'Spica'},
+      {id:14,name:'Chitra', stars:'Spica/Corvus'},
+      {id:15,name:'Swati', stars:'Arcturus'},
+      {id:16,name:'Vishakha', stars:'Boötes region'},
+      {id:17,name:'Anuradha', stars:'Antares area'},
+      {id:18,name:'Jyeshta', stars:'Scorpius'},
+      {id:19,name:'Mula', stars:'Tail of Scorpius'},
+      {id:20,name:'Purva Ashadha', stars:'Sagittarius'},
+      {id:21,name:'Uttara Ashadha', stars:'Capricorn region'},
+      {id:22,name:'Shravana', stars:'Vega'},
+      {id:23,name:'Dhanishta', stars:'Delphinus'},
+      {id:24,name:'Shatabhisha', stars:'Aquarius'},
+      {id:25,name:'Purva Bhadrapada', stars:'Pegasus'},
+      {id:26,name:'Uttara Bhadrapada', stars:'Pisces'},
+      {id:27,name:'Revati', stars:'Zeta Piscium'}
+    ];
+
+    const list = document.getElementById('list');
+    nakshatras.forEach(n=>{
+      const el = document.createElement('div'); el.className='nak'; el.tabIndex=0;
+      el.innerHTML = `<div><strong>${n.id}. ${n.name}</strong><div class='meta'>${n.stars}</div></div><div class='meta'>13°20'</div>`;
+      el.onclick = ()=>alert(`${n.name} — ${n.stars}`);
+      list.appendChild(el);
+    });
+
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const slices = document.getElementById('slices');
+    const cx=200, cy=200, r=180;
+    nakshatras.forEach((n,i)=>{
+      const start = (i*(360/27))-90;
+      const end = ((i+1)*(360/27))-90;
+      const large = (end-start)>180?1:0;
+      const x1 = cx + r*Math.cos(start*Math.PI/180);
+      const y1 = cy + r*Math.sin(start*Math.PI/180);
+      const x2 = cx + r*Math.cos(end*Math.PI/180);
+      const y2 = cy + r*Math.sin(end*Math.PI/180);
+      const path = document.createElementNS(svgNS,'path');
+      const d = `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z`;
+      path.setAttribute('d',d);
+      path.setAttribute('fill','rgba(255,255,255,0.02)');
+      path.setAttribute('stroke','rgba(255,255,255,0.03)');
+      slices.appendChild(path);
+
+      const mid = (start+end)/2;
+      const tx = cx + (r-40)*Math.cos(mid*Math.PI/180);
+      const ty = cy + (r-40)*Math.sin(mid*Math.PI/180);
+      const t = document.createElementNS(svgNS,'text');
+      t.setAttribute('x',tx); t.setAttribute('y',ty); t.setAttribute('font-size','9'); t.setAttribute('text-anchor','middle'); t.setAttribute('fill','#cfe8ff');
+      t.textContent = n.name;
+      slices.appendChild(t);
+    });
+
+    const profiles = {
+      'Ashvini':'Deity: Ashwini Kumaras.',
+      'Bharani':'Deity: Yama.',
+      'Krittika':'Deity: Agni.'
+    };
+
+    const profDiv = document.getElementById('profiles');
+    Object.keys(profiles).forEach(name=>{
+      const el = document.createElement('div'); el.style.margin='1rem 0';
+      el.innerHTML = `<strong>${name}</strong><br><span class='meta'>${profiles[name]}</span>`;
+      profDiv.appendChild(el);
+    });
+
+    function calcNakshatra(){
+      const d = new Date(document.getElementById('dateInput').value);
+      if(!d) return;
+      const base = new Date('2000-01-01');
+      const diff = (d-base)/(1000*60*60*24);
+      const moonLong = (diff % 27) * (360/27);
+      const idx = Math.floor((moonLong/(360/27))) % 27;
+      document.getElementById('result').innerText = `Approx Moon Nakshatra: ${nakshatras[idx].name}`;
+    }
+  </script>
+</body>
+</html>
